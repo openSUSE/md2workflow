@@ -1,9 +1,10 @@
-import glob
 from setuptools import setup, find_packages
+
 
 setup(
     name="md2workflow",
     description="Create a JIRA or other Workflow from markdown files.",
+    long_description="Create a JIRA or other Workflow from markdown files.",
     version="1.3",
     license="GPLv3",
     author="Lubos Kocman",
