@@ -22,7 +22,7 @@ DEFAULT_CONFIG_DIR = "/etc/md2workflow"
 DEFAULT_CONFIG_PATH = os.path.join(DEFAULT_CONFIG_DIR, "local.conf")
 EXAMPLE_DIR = os.path.join(DEFAULT_CONFIG_DIR, "config")
 USER_CONFIG_DIR = os.path.expanduser(os.path.join("~", ".md2workflow"))
-
+SHARE_CONFIG_DIR="share/md2workflow/config" # value is used in  setup.py
 
 # for development
 if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "example")):
@@ -32,7 +32,7 @@ if os.path.exists(os.path.join(os.path.dirname(os.path.realpath(__file__)), ".."
         DEFAULT_CONFIG_DIR, os.path.basename(DEFAULT_CONFIG_PATH))
     EXAMPLE_DIR = os.path.normpath(os.path.join(dirname, "example"))
 
-CONFIG_LOOKUP_DIRS = [".", USER_CONFIG_DIR, DEFAULT_CONFIG_DIR]
+CONFIG_LOOKUP_DIRS = [".", USER_CONFIG_DIR, DEFAULT_CONFIG_DIR, os.path.join(sys.prefix, SHARE_CONFIG_DIR)]
 
 
 class CliAction:
@@ -116,10 +116,6 @@ class Cli(object):
 
             elif os.path.exists(os.path.join(ldir, "%s.conf" % env_or_path)):
                 return os.path.join(ldir, "%s.conf" % env_or_path)
-
-        # setuptools installation
-        if os.path.exists(pkg_resources.resource_exists(__name__, "%s.conf" % env_or_path)):
-            return os.path.exists(pkg_resources.resource_filename(__name__, "%s.conf" % env_or_path))
 
         return None
 
