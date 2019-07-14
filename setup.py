@@ -18,8 +18,8 @@ setup(
     url="https://github.com/lkocman/md2workflow.git",
     py_modules=find_packages(),
     data_files=[('share/md2workflow/example', glob('example/*')), ('share/md2workflow/config', glob('config/*'))],
-    setup_requires=["pytest-runner",],
-    tests_require=[] + pytest_runner,
+    setup_requires=[] + pytest_runner,
+    tests_require=['pytest',],
     install_requires=["jira",],
     entry_points = {
 	"console_scripts": [
