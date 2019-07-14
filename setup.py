@@ -9,7 +9,7 @@ setup(
     name="md2workflow",
     description="Create a JIRA or other Workflow from markdown files.",
     long_description="Create a JIRA or other Workflow from markdown files.",
-    version="1.4.1",
+    version="1.4.2",
     license="GPLv3",
     author="Lubos Kocman",
     author_email="Lubos.Kocman@suse.com",
