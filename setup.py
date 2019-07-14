@@ -1,6 +1,8 @@
 from glob import glob
 from setuptools import setup, find_packages
 
+needs_pytest = {'pytest', 'test', 'ptr'}.intersection(sys.argv)
+pytest_runner = ['pytest-runner'] if needs_pytest else []
 
 setup(
     name="md2workflow",
@@ -16,7 +18,7 @@ setup(
     py_modules=find_packages(),
     data_files=[('share/md2workflow/example', glob('example/*')), ('share/md2workflow/config', glob('config/*'))],
     setup_requires=["pytest-runner",],
-    tests_require=["pytest",],
+    tests_require=[] + pytest_runner,
     install_requires=["jira",],
     entry_points = {
 	"console_scripts": [
