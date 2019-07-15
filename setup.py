@@ -9,7 +9,7 @@ setup(
     name="md2workflow",
     description="Create a JIRA or other Workflow from markdown files.",
     long_description="Create a JIRA or other Workflow from markdown files.",
-    version="1.4.4",
+    version="1.4.5",
     license="GPLv3",
     author="Lubos Kocman",
     author_email="Lubos.Kocman@suse.com",
@@ -18,7 +18,6 @@ setup(
     url="https://github.com/lkocman/md2workflow.git",
     py_modules=find_packages(),
     data_files=[
-        ("", ["LICENSE",]),
         ("share/md2workflow/example", glob("example/*")),
         ("share/md2workflow/config", glob("config/*"))],
     setup_requires=[] + pytest_runner,
