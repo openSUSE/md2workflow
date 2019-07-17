@@ -3,22 +3,28 @@
 Markdown To Workflow. A tool which can convert typically "VCS managed" mardown checklist into e.g. a linked structure of Jira Epics.
 Tool can not only create checklists, but also update them!
 
-## Get the tool and data
+## Getting the tool
 
-**Tool requires python-jira**
-
+### openSUSE / SLE
+You can install latest python3-md2workfow or python2-md2workflow rpms from lkocman's home project**
+```
+> osc -A https://api.opensuse.org repourls home:lkocman:sle-release-management
+https://download.opensuse.org/repositories/home:/lkocman:/sle-release-management/openSUSE_Tumbleweed/home:lkocman:sle-release-management.repo
+https://download.opensuse.org/repositories/home:/lkocman:/sle-release-management/openSUSE_Leap_15.1/home:lkocman:sle-release-management.repo
+https://download.opensuse.org/repositories/home:/lkocman:/sle-release-management/SLE_15_SP1/home:lkocman:sle-release-management.repo
+> sudo zypper ar --refresh $ONE_OF_URLS_ABOVE
+> sudo zypper install python3-md2workflow # or python2-md2workflow
 ```
 
-setup.py install # if you use virtualenv
+### pip
 
-# Install Dependencies on openSUSE
-zypper install python2-jira python3-jira # based on your system
+Please use virtualenv!!!
 
-# Install Dependencies on Fedora
-yum install python2-jira python3-jira
-
-# Get tool from git
-git clone https://github.com/lkocman/md2workflow.git
+```
+> pip install md2workflow
+Collecting md2workflow
+  Downloading https://files.pythonhosted.org/packages/cf/ca/b73a9f5a8bb1bf6debbfd21441ec2c3cce35745ab342b9e53c5d78b0c872/md2workflow-1.4.5-py3-none-any.whl
+Collecting jira (from md2workflow)
 ```
 
 ## How does it work?
@@ -179,10 +185,16 @@ markdown_filename = ga.md
 ### Hello World 
 
 This is a Local dry-run of example config (using backend=generic)
-Consider this a Hello World in md2workfow
+Consider this a Hello World in md2workfow.
+
+Please be aware that the path to my_project.conf will vary based on how did you get tool.
 
 ```
+# For git checkout
 bin/md2workflow --env config/local.conf example/my_project.conf # or simply --env local
+
+# For rpm or pip installation (in case that --prefix for pip is /usr)
+md2workflow --env local /usr/share/md2workflow/example/my_project.conf
 ```
 
 ### Creating or updating checklist in Jira
