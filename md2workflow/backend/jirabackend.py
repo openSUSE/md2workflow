@@ -353,8 +353,8 @@ class JiraBasedWorkflow(JiraTask, workflow.GenericWorkflow):
 
         if self.action == CliAction.UPDATE:
             if not relation.source._issue or not relation.target._issue:
-                self.relation.source.fetch_myself()
-                self.relation.target.fetch_myself()
+                relation.source.fetch_myself()
+                relation.target.fetch_myself()
 
             # Double check on update, perhaps fetch_myself returned None
             if not relation.source._issue or not relation.target._issue:
