@@ -412,11 +412,10 @@ class JiraBasedProject(JiraBasedWorkflow, workflow.GenericProject):
             if "user" in self.environment["jira"]:
                 user = self.environment["jira"]["user"]
             else:
-				try:
-	                user = raw_input("JIRA user for %s: " % server)
-				except NameError:
-	                user = input("JIRA user for %s: " % server)
-
+                try:
+                    user = raw_input("JIRA user for %s: " % server)
+                except NameError:
+                    user = input("JIRA user for %s: " % server)
             password = None
             if "password" in self.environment["jira"]:
                 password = self.environment["jira"]["password"]
