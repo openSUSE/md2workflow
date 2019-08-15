@@ -124,11 +124,17 @@ class JiraSubTask(workflow.GenericTask):
     @property
     def description(self):
         res = self._description
+
+        # Subsitute both Product and Project with the project name
         res = res.replace("${%Project}", self.conf["project"]["name"])
-        # both are valid
         res = res.replace("${%Product}", self.conf["project"]["name"])
+
+        # Substitute both Epic and Miestone with the Epic name
         res = res.replace("${Epic}", str(self.parent_by_subclass(
             JiraBasedWorkflow).summary))  # XXX will not work for subtask
+        res = res.replace("${Milestone}", str(self.parent_by_subclass(
+            JiraBasedWorkflow).summary))  # XXX will not work for subtask
+
         res = substitute_links(
             res, topurl=self.environment["jira"]['relative_link_topurl'])
         #res = res.replace(">", "&gt;")
