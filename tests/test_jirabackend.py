@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import configparser
+import logging
 import os
 
 import md2workflow.markdown as markdown
@@ -59,3 +60,13 @@ def test_user_group_raw():
     assert project.tasks[0].tasks[1].summary == "task 2"
     assert project.tasks[0].tasks[1].description == "description2"
     assert project.tasks[0].tasks[1].owner == "bar"
+
+def test_bold_description():
+    # Using subtask as it's a lowest level object
+    subtask = jirabackend.JiraSubTask(summary="test")
+    subtask.logging = logging.getLogger()
+    subtask.description = "This is a **Bold** text"
+    assert subtask.description == "This is a *Bold* text" # Jira uses single star
+
+    subtask.description = "This is a __Bold__ text"
+    assert subtask.description == "This is a *Bold* text" # Jira uses single star

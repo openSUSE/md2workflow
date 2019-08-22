@@ -126,19 +126,27 @@ class JiraSubTask(workflow.GenericTask):
         res = self._description
 
         # Subsitute both Product and Project with the project name
-        res = res.replace("${%Project}", self.conf["project"]["name"])
-        res = res.replace("${%Product}", self.conf["project"]["name"])
+        if self.conf and "project" in self.conf:
+            res = res.replace("${%Project}", self.conf["project"]["name"])
+            res = res.replace("${%Product}", self.conf["project"]["name"])
 
-        # Substitute both Epic and Miestone with the Epic name
-        res = res.replace("${Epic}", str(self.parent_by_subclass(
-            JiraBasedWorkflow).summary))  # XXX will not work for subtask
-        res = res.replace("${Milestone}", str(self.parent_by_subclass(
-            JiraBasedWorkflow).summary))  # XXX will not work for subtask
+        if self.parent_by_subclass(JiraBasedWorkflow):
+            # Substitute both Epic and Miestone with the Epic name
+            res = res.replace("${Epic}", str(self.parent_by_subclass(
+                JiraBasedWorkflow).summary))  # XXX will not work for subtask
+            res = res.replace("${Milestone}", str(self.parent_by_subclass(
+                JiraBasedWorkflow).summary))  # XXX will not work for subtask
 
-        res = substitute_links(
-            res, topurl=self.environment["jira"]['relative_link_topurl'])
+        if self.environment and "jira" in self.environment and \
+            self.environment["jira"].get("relative_link_topurl", None):
+            res = substitute_links(
+                res, topurl=self.environment["jira"]['relative_link_topurl'])
+
         #res = res.replace(">", "&gt;")
         #res = res.replace("<", "&lt;")
+
+        res = res.replace("**", "*") # Markdown bold to JIRA bold
+        res = res.replace("__", "*") # Markdown bold to JIRA bold
         return res
 
     @description.setter
