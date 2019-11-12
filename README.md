@@ -8,10 +8,8 @@ Tool can not only create checklists, but also update them!
 ### openSUSE / SLE
 You can install latest python3-md2workfow or python2-md2workflow rpms from lkocman's home project**
 ```
-> osc -A https://api.opensuse.org repourls home:lkocman:sle-release-management
-https://download.opensuse.org/repositories/home:/lkocman:/sle-release-management/openSUSE_Tumbleweed/home:lkocman:sle-release-management.repo
-https://download.opensuse.org/repositories/home:/lkocman:/sle-release-management/openSUSE_Leap_15.1/home:lkocman:sle-release-management.repo
-https://download.opensuse.org/repositories/home:/lkocman:/sle-release-management/SLE_15_SP1/home:lkocman:sle-release-management.repo
+> osc -A https://api.opensuse.org repourls devel:languages:python/python-md2workflow
+hsle-release-management/SLE_15_SP1/devel:languages:python.repo
 > sudo zypper ar --refresh $ONE_OF_URLS_ABOVE
 > sudo zypper install python3-md2workflow # or python2-md2workflow
 ```
