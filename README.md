@@ -102,7 +102,7 @@ Is an .ini file which holds information about backend (e.g. jira or generic)
 and instance specific configuration, custom fields etc.  It's supplied by the --env option
 
 ```
-bin/md2workflow --env $ENV # e.g. local, jira-example or config/local.conf
+bin/md2workflow --env $ENV [--update] project_config # $ENV in this case is e.g. local as in /etc/md2workflow/local.conf
 ```
 
 The tool is looking up for following locations for the env file in given order.

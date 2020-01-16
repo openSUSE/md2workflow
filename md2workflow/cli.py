@@ -162,18 +162,18 @@ class Cli(object):
 
 
 def main():
-    parser = OptionParser(usage="%prog --jira-project PROJECT md_file")
+    parser = OptionParser(usage="%prog --env ENV [ --update ] project_config_file")
     config_group = OptionGroup(parser, "Global configuration options")
     config_group.add_option(
         "--env",
-        help="E.g. prod (as in prod.conf) or full path to a file. [Default: %s]." % DEFAULT_CONFIG_PATH,
+        help="E.g. local (as in /etc/md2workflow/lcoal.conf) or a full path to a file. [Default: %s]." % DEFAULT_CONFIG_PATH,
         default=DEFAULT_CONFIG_PATH
     )
     parser.add_option_group(config_group)
     action_group = OptionGroup(parser, "Workflow action related options")
     action_group.add_option(
         "--update",
-        help="Update workflow rather than create.",
+        help="Update existing workflow rather than create a new one.",
         default=CliAction.CREATE,
         action="store_const",
         const=CliAction.UPDATE,
@@ -183,7 +183,7 @@ def main():
     opts, args = parser.parse_args()
     if len(args) != 1:
         parser.error(
-            "Expected exactly one argument which is path to the project config.")
+            "Expected exactly one argument which is path to the project config and also --env.")
 
     if not opts.env:
         parser.error("--env is mandatory")
