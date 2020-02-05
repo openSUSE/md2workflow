@@ -1,4 +1,4 @@
-# Alpha phase
+# Alpha Phase
 
 #### Beta flag
 Responsible: rel-mgmt 

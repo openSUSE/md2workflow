@@ -9,7 +9,7 @@ setup(
     name="md2workflow",
     description="Create a JIRA or other Workflow from markdown files.",
     long_description="Create a JIRA or other Workflow from markdown files.",
-    version="1.4.9",
+    version="1.4.10",
     license="GPLv3",
     author="Lubos Kocman",
     author_email="Lubos.Kocman@suse.com",
@@ -22,7 +22,7 @@ setup(
         ("share/md2workflow/config", glob("config/*"))],
     setup_requires=[] + pytest_runner,
     tests_require=["pytest",],
-    install_requires=["jira",],
+    install_requires=["jira", "configparser"],
     entry_points = {
 	"console_scripts": [
     	"md2workflow = md2workflow.cli:main",

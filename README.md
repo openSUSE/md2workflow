@@ -192,12 +192,12 @@ scc = lkocman
 [Project config]
 markdown_filename = project_config.md
 
-[Alpha phase]
+[Alpha Phase]
 Depends on = Project config
 markdown_filename = alpha.md
 
 [Alpha 1]
-Implements = Alpha phase
+Implements = Alpha Phase
 markdown_filename = repetitiveTasksForMilestones.md
 
 [Beta Phase]

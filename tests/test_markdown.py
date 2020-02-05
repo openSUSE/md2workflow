@@ -174,7 +174,6 @@ def test_process_subtask():
     md = markdown.MarkDown()
     md.reads(raw)
     assert len(md.nodes) == 1 and isinstance(md.nodes[0], markdown.Heading1)
-    print "second", md.nodes[0].nodes
     assert len(md.nodes[0].nodes) == 1 and isinstance(
         md.nodes[0].nodes[0], markdown.Heading4)
     assert len(md.nodes[0].nodes[0].nodes) == 2
