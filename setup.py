@@ -22,7 +22,7 @@ setup(
         ("share/md2workflow/config", glob("config/*"))],
     setup_requires=[] + pytest_runner,
     tests_require=["pytest",],
-    install_requires=["jira",],
+    install_requires=["jira", "configparser"],
     entry_points = {
 	"console_scripts": [
     	"md2workflow = md2workflow.cli:main",
