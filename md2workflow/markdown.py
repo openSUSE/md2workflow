@@ -96,6 +96,13 @@ class MarkDownObject(object):
         # Always point head at latest added node
         self._head = node
 
+    def to_markdown(self):
+        return str(self)
+
+    def print_markdown_tree(self):
+        print (self.to_markdown())
+        for node in self.nodes:
+            node.print_markdown_tree()
 
 class MarkDown(MarkDownObject):
     """
@@ -202,6 +209,17 @@ class Paragraph(MarkDownObject):
     def __str__(self):
         return self.__text
 
+    def to_markdown(self):
+        # Ensure we have a newline after and before the print out
+        return "%s" % self.__text
+
+    def print_markdown_tree(self):
+        # Print an extra space before and after the paragraph
+        # This is the format we actually want in .md files
+        print ()
+        super(Paragraph, self).print_markdown_tree()
+        print ()
+
 
 class Variable(MarkDownObject):
     """
@@ -249,6 +267,9 @@ class Variable(MarkDownObject):
 
     def __str__(self):
         return self.name
+
+    def to_markdown(self):
+        return "%s: %s" % (self.name, self.value)
 
 
 class Heading(MarkDownObject):
@@ -338,8 +359,7 @@ class Heading(MarkDownObject):
             raise ValueError("Unexpected value %s" % lvl)
 
     def to_markdown(self):
-        return "%s %s" % (self.level * "#", self)
-
+        return "%s %s" % (self.level * "#", self.__text)
 
 class Heading1(Heading):
     level = 1
