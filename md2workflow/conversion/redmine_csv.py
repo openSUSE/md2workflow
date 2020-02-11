@@ -46,25 +46,28 @@ def process_row(row, markdown_parser, opts, logger):
     # Ensure that when we end the block the HEAD points to matching H1
     if row[RedmineFields.Target_version]:
         target_version = row[RedmineFields.Target_version]
-        logger.debug("Target version: %s" % target_version)
-        if opts.target_version and target_version not in opts.target_version:
-            logger.debug("Skipping target_version %s due to --target-version=%s" % (target_version, opts.target_version))
-            return
+    else:
+        target_version = "Unsorted" # This would otherwise make quite a mess in Markdown
 
-        for node in markdown_parser.nodes:
-            logger.debug("Looking for existing H1 with value %s. Found: %s" % (target_version, str(node)))
-            if str(node) == target_version:
-                head = node
-                logger.debug("Found match for target_version: %s" % (target_version))
-                break
+    logger.debug("Target version: %s" % target_version)
+    if opts.target_version and target_version not in opts.target_version:
+        logger.debug("Skipping target_version %s due to --target-version=%s" % (target_version, opts.target_version))
+        return
 
-        if str(head) != target_version: # Is head on the matching H1?
-            logger.debug("Did not find existing Heading 1 with value %s" % target_version)
-            parent = head
-            head = markdown.Heading1(target_version) # Set Head to H1
-            logger.debug("Creating new H1 node: %s" % str(head))
-            parent.add_node(head)
-            logger.debug("Current HEAD: %s, nodes: %s" % (head, [str(n) for n in head.nodes]))
+    for node in markdown_parser.nodes:
+        logger.debug("Looking for existing H1 with value %s. Found: %s" % (target_version, str(node)))
+        if str(node) == target_version:
+            head = node
+            logger.debug("Found match for target_version: %s" % (target_version))
+            break
+
+    if str(head) != target_version: # Is head on the matching H1?
+        logger.debug("Did not find existing Heading 1 with value %s" % target_version)
+        parent = head
+        head = markdown.Heading1(target_version) # Set Head to H1
+        logger.debug("Creating new H1 node: %s" % str(head))
+        parent.add_node(head)
+        logger.debug("Current HEAD: %s, nodes: %s" % (head, [str(n) for n in head.nodes]))
 
 
     # Task creation
@@ -159,7 +162,7 @@ def get_optparse():
     parser.add_option(
         "--target-version",
         action="append",
-        help="Process only specific Redmine Target version E.g. Alpha. Useful for redirection into files."
+        help="Process only specific Redmine Target version E.g. Alpha. No Target version can be specified as 'Unsorted'",
     )
 
     return parser
