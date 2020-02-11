@@ -16,10 +16,10 @@ if os.path.dirname(os.path.realpath(__file__)) not in ("/usr/bin", "/bin"):
 from md2workflow.conversion.redmine_csv import *
 
 def main():
-    opts, args = get_optparse().parse_args()
+    parser = get_optparse()
+    opts, args = parser.parse_args()
     if len(args) != 1:
-        parser.error(
-            "Expected exactly one argument which is path to the csv export from Redmine.")
+        parser.error("Expected exactly one argument which is path to the csv export from Redmine.")
 
     if opts.debug:
         logger.setLevel(logging.DEBUG)
