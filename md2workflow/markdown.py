@@ -220,8 +220,11 @@ class Paragraph(MarkDownObject):
         # Print an extra space before and after the paragraph
         # This is the format we actually want in .md files
         print ()
-        super(Paragraph, self).print_markdown_tree()
+        print (self.to_markdown())
         print ()
+
+        for node in self.nodes:
+            node.print_markdown_tree()
 
 
 class Variable(MarkDownObject):
@@ -363,6 +366,16 @@ class Heading(MarkDownObject):
 
     def to_markdown(self):
         return "%s %s" % (self.level * "#", self.__text)
+
+    def print_markdown_tree(self):
+        # Print an extra space after the Heading
+        # This is the format we actually want in .md files
+        print (self.to_markdown())
+        if self.level == 1: # print extra space for Epic level
+            print ()
+
+        for node in self.nodes:
+            node.print_markdown_tree()
 
 class Heading1(Heading):
     level = 1
