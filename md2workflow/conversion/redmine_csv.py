@@ -48,7 +48,7 @@ def process_row(row, markdown_parser, opts, logger):
         target_version = row[RedmineFields.Target_version]
         logger.debug("Target version: %s" % target_version)
         if opts.target_version and target_version not in opts.target_version:
-            logging.debug("Skipping target_version %s due to --target-version=%s" % (target_version, opts.target_version))
+            logger.debug("Skipping target_version %s due to --target-version=%s" % (target_version, opts.target_version))
             return
 
         for node in markdown_parser.nodes:
