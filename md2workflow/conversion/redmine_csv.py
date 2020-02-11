@@ -30,7 +30,6 @@ class RedmineFields(object):
     Description = 21
 
 def process_row(row, markdown_parser, opts, logger):
-    #print (row[RedmineFields.Description])
     """
     Nodes are in a tree structure
     H1 is essentially epic, H4 task, H5 subtask.

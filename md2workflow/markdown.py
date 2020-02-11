@@ -96,11 +96,10 @@ class MarkDownObject(object):
         # Always point head at latest added node
         self._head = node
 
-    def to_markdown(self):
-        return str(self)
-
     def print_markdown_tree(self):
-        print (self.to_markdown())
+        if self.to_markdown():
+            print (self.to_markdown())
+
         for node in self.nodes:
             node.print_markdown_tree()
 
@@ -159,6 +158,10 @@ class MarkDown(MarkDownObject):
             self.logger.debug(
                 "Markdown: Ignoring line as it didn't match any known type.'%s'" % line)
 
+    def to_markdown(self):
+        # No text/visual interpretation at all. This would be essentially a project config
+        # So if something, then streaming basic project_config with reference to individual .md files
+        return
 
 class Paragraph(MarkDownObject):
     level = 10
