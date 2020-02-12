@@ -156,6 +156,9 @@ class Cli(object):
         elif backend == "generic":
             import md2workflow.backend.genericbackend
             md2workflow.backend.genericbackend.handle_project(self)
+        elif backend == "redmine":
+            import md2workflow.backend.redminebackend
+            md2workflow.backend.redminebackend.handle_project(self)
         else:
             logger.error("Backend %s is not supported." % backend)
             raise NotImplementedError("Backend %s is not supported." % backend)
