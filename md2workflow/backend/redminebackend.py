@@ -12,29 +12,69 @@ from md2workflow.cli import get_md_abspath
 from redminelib import Redmine
 
 
-class RedmineSubttask(workflow.GenericTask):
-    pass # Hackweek19 subject
+class RedmineSubtask(workflow.GenericTask):
+    def __init__(self, summary, client_session=None, description="", environment=None, conf=None):
+        super(RedmineSubtask, self).__init__(
+            summary, description, environment, conf)
+        self.client_session = client_session
+        self._published = False
+        self._issue = None
+        self._updatable = None
 
-class RedmineTask(RedmineSubttask, workflow.GenericNestedTask):
+class RedmineTask(RedmineSubtask, workflow.GenericNestedTask):
     pass # Hackweek19 subject
 
 class RedmineBasedWorkflow(RedmineTask, workflow.GenericWorkflow):
     pass # Hackweek19 subject
 
 class RedmineBasedProject(RedmineBasedWorkflow, workflow.GenericProject):
-    pass # Hackweek19 subject
+    def client_session_from_env(self):
+        """
+        This will be inherited to every added child task and it's child task ...
+        """
+        if self.client_session:
+            return
+        server = self.environment["redmine"]["server"]
+
+        # use value passed by user if mapping is not found
+        if self.environment["redmine"]["auth"] == "basic":
+            user = None
+            if "user" in self.environment["redmine"]:
+                user = self.environment["redmine"]["user"]
+            else:
+                try:
+                    user = raw_input("Redmine user for %s: " % server)
+                except NameError:
+                    user = input("Redmine user for %s: " % server)
+            password = None
+            if "password" in self.environment["redmine"]:
+                password = self.environment["redmine"]["password"]
+            else:
+                password = getpass.getpass(
+                    "Password of Redmine user %s for %s: " % (user, server))
+            self.logger.debug("Creating redmine session %s@%s" % (user, server))
+            self.client_session = Redmine(
+                                                server,
+                                                username=user,
+                                                password=password)
+        else:
+            raise NotImplementedError("Authentication type '%s' is not implemented." % \
+                                        self.environment["redmine"]["auth"])
+
 
 def handle_project(cli):
     """
     Args:
         cli (Cli) - an object representing execution environment
     """
+    server = cli.environment["redmine"]["server"]
     cli.logger.info(
-        "Using Redmine Backend.")
+        "Using Redmine Backend. Redmine Server is %s. Changes will be commited." % server)
     project = RedmineBasedProject(
         summary=cli.project_conf["project"]["name"], environment=cli.environment, conf=cli.project_conf)
     project.logger = cli.logger
     project.conf = cli.project_conf
+    project.client_session_from_env()
 
     for workflow_section in project.conf.sections():  # Workflow as in Milestone (e.g Beta) or Epic
         # these are not milestone sections
