@@ -9,6 +9,7 @@ import md2workflow.workflow as workflow
 import md2workflow.markdown as markdown
 
 from md2workflow.cli import get_md_abspath
+from redminelib import Redmine
 
 
 class RedmineSubttask(workflow.GenericTask):
