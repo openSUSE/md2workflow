@@ -213,7 +213,6 @@ def main():
         print("ERROR: Found following md2workflow environment config issues:\n%s" % (
             "\n".join(environment_errors)))
         sys.exit(1)
-
     project_errors = Cli.validate_project(project_conf)
     if project_errors:
         print("ERROR: Found following md2workflow product issues:\n%s" %
