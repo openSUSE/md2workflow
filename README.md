@@ -105,7 +105,7 @@ Redime supports both start and due dates.
 
 Example task with calendar integration
 
-````
+```
 # Alpha
 Calendar: Alpha Phase
 
@@ -119,6 +119,7 @@ My Start/Due date will be set also to match Alpha phase, because I said so.
 ## Send annoucement
 My Start/Due date won't be set because the "Calendar: Entry" is missing
 ```
+
 ## Configuration
 
 If you just cloned the tool, the configuration files are located in the example directory.
@@ -152,7 +153,6 @@ If you skip the issue states and workflow then creation of any issue or target_v
 
 ```
 [global]
-# currently the only one supported
 backend = redmine
 
 [redmine]
@@ -183,7 +183,6 @@ lkocman@deadrat:~/Workspace/opensuse/md2wor
 ```
 
 [global]
-# currently the only one supported
 backend = jira
 
 [jira]
