@@ -142,8 +142,44 @@ Lookup order
 * /etc/md2workflow/
 * config resources from setup.py
 
+**Example Environment config for Redmine**
 
-Example Environment config
+Redmine is really easy to start with as you can just docker pull the container.
+Create initial project e.g. Example and define issue states and issue workflow in
+the Administration part. 
+
+If you skip the issue states and workflow then creation of any issue or target_version will fail.
+
+```
+[global]
+# currently the only one supported
+backend = redmine
+
+[redmine]
+# lkocman's local container setup, default port is 3000
+server = http://redmine-example:3000
+auth = basic
+user = admin
+
+# Plase do not expose password in system-wide config
+# but it's perfectly fine in ~/.md2workflow where file has permissions 600
+password = adminadmin
+# We'll create subproject if project is defined
+# Identifier of parent process
+parent = example
+is_project_public = True
+
+[logging]
+level = DEBUG
+
+[TaskRelations]
+relations = Blocks, Depends On, Implements, Implemented by
+inbound = Implemented by, Depends On
+lkocman@deadrat:~/Workspace/opensuse/md2wor
+```
+
+**Example Environment config for JIRA**
+
 ```
 
 [global]
