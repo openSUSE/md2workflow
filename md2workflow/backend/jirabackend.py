@@ -123,12 +123,12 @@ class JiraSubTask(workflow.GenericTask):
 
     @property
     def description(self):
-        res = self._description
+        res = self._description.strip()
 
         # Subsitute both Product and Project with the project name
         if self.conf and "project" in self.conf:
-            res = res.replace("${%Project}", self.conf["project"]["name"])
-            res = res.replace("${%Product}", self.conf["project"]["name"])
+            res = res.replace("${Project}", self.conf["project"]["name"])
+            res = res.replace("${Product}", self.conf["project"]["name"])
 
         if self.parent_by_subclass(JiraBasedWorkflow):
             # Substitute both Epic and Miestone with the Epic name
