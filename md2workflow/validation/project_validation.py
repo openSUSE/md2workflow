@@ -8,7 +8,9 @@ def validate_project_section(config):
     errors = []
     if not config.has_section("project"):
         errors.append("Missing [project]. Sections %s" % config._sections)
-    if config.has_section("project"):
+    else:
         errors.extend(validation.allowed_section_keys(
-            config["project"], allowed_keys=["name", ]))
+            config["project"], allowed_keys=["name", "homepage", "identifier"]))
+        errors.extend(validation.required_section_keys(
+            config["project"], required_keys=["name",]))
     return errors

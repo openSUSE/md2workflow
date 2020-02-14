@@ -156,6 +156,9 @@ class Cli(object):
         elif backend == "generic":
             import md2workflow.backend.genericbackend
             md2workflow.backend.genericbackend.handle_project(self)
+        elif backend == "redmine":
+            import md2workflow.backend.redminebackend
+            md2workflow.backend.redminebackend.handle_project(self)
         else:
             logger.error("Backend %s is not supported." % backend)
             raise NotImplementedError("Backend %s is not supported." % backend)
@@ -210,7 +213,6 @@ def main():
         print("ERROR: Found following md2workflow environment config issues:\n%s" % (
             "\n".join(environment_errors)))
         sys.exit(1)
-
     project_errors = Cli.validate_project(project_conf)
     if project_errors:
         print("ERROR: Found following md2workflow product issues:\n%s" %

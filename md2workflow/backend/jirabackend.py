@@ -101,7 +101,7 @@ class JiraSubTask(workflow.GenericTask):
     def set_action(self, action):
         if action not in (CliAction.CREATE, CliAction.UPDATE):
             raise ValueError(
-                "JiraBasedProject: unsupported action %s" % action)
+                "%s: unsupported action %s" % (self.__class__.__name__, action))
         self.action = action
 
     def _get_field(self, field_name):
