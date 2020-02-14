@@ -13,6 +13,7 @@ except ImportError:
     import json
 import md2workflow.workflow as workflow
 import md2workflow.markdown as markdown
+import md2workflow.schedule as schedule
 
 from md2workflow.cli import get_md_abspath
 from configparser import ConfigParser
@@ -185,6 +186,11 @@ class JiraSubTask(workflow.GenericTask):
             else:
                 fields[self._get_field(self.environment["jira"]["mapping_Assignee"])] = {
                     'name': self.owner}
+
+        #  "duedate": "2011-03-11"
+        if self.calendar_entry:
+            # Start date not allowed to be started by REST api
+            fields["duedate"] = self.calendar_entry[1].isoformat()
 
         return fields
 
@@ -456,6 +462,16 @@ def handle_project(cli):
     project = JiraBasedProject(
         summary=cli.project_conf["project"]["name"], environment=cli.environment, conf=cli.project_conf)
     project.logger = cli.logger
+
+    project.schedule = schedule.ProjectSchedule()
+    if "schedule" in project.conf:
+        # relpath has to be handled for non-url entries
+        url = project.conf["schedule"]["calendar_url"]
+        if not (url.startswith("https://") or url.startswith("http://")):
+            url = get_md_abspath(cli.project_path, url)
+        cli.logger.info("Using calendar: %s" % url)
+        project.schedule.from_url(url)
+
     project.jira_session_from_env()
     project.set_action(cli.action)
 

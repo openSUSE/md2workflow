@@ -9,6 +9,7 @@ from redminelib import Redmine, exceptions
 
 import md2workflow.workflow as workflow
 import md2workflow.markdown as markdown
+import md2workflow.schedule as schedule
 
 from md2workflow.cli import get_md_abspath
 from md2workflow.cli import CliAction
@@ -47,7 +48,6 @@ class RedmineSubTask(workflow.GenericTask):
             "Is Redmine API enabled? Do you have role with permission to create project?" % self.summary)
             raise
 
-
     def publish(self, force_publish=False):
         if self._published: # Idempotency
             return
@@ -64,6 +64,11 @@ class RedmineSubTask(workflow.GenericTask):
 
         # parent's parent is target_version
         self._redmine.fixed_version_id = self.parent_task.  parent_task._redmine.id
+
+        if self.calendar_entry:
+            self._redmine.start_date = self.calendar_entry[0]
+            self._redmine.due_date = self.calendar_entry[1]
+
         self._save_redmine()
 
     @property
@@ -110,6 +115,11 @@ class RedmineTask(RedmineSubTask, workflow.GenericNestedTask):
 
         # XXX: I see that some issues are multiplied perhaps we have to check
         # Whether the issue was already published or not.
+
+        if self.calendar_entry:
+            self._redmine.start_date = self.calendar_entry[0]
+            self._redmine.due_date = self.calendar_entry[1]
+
         self._save_redmine()
 
     @property
@@ -166,9 +176,16 @@ class RedmineBasedWorkflow(RedmineTask, workflow.GenericWorkflow):
             #self._redmine.due_date = datetime.date(2014, 1, 30) # TODO Issue #17
             self._redmine.description = self.description
             self._redmine.wiki_page_title = self.summary
+
+            if self.calendar_entry:
+                # Only due date for Target version
+                self._redmine.due_date = self.calendar_entry[1]
+
             self._save_redmine()
             self.logger.debug("New Redmine version (workflow) create id=%s" % self._redmine.id)
-        self._published = True
+
+
+        self._published = True # for Update in case that target_version already existed
 
         def publish_task_relation(self, relation):
             self.logger.debug("redmine: relations are not supported.")
@@ -286,6 +303,14 @@ def handle_project(cli):
         summary=cli.project_conf["project"]["name"], environment=cli.environment, conf=cli.project_conf)
     project.logger = cli.logger
     project.conf = cli.project_conf
+    project.schedule = schedule.ProjectSchedule()
+    if "schedule" in project.conf:
+        # relpath has to be handled for non-url entries
+        url = project.conf["schedule"]["calendar_url"]
+        if not (url.startswith("https://") or url.startswith("http://")):
+            url = get_md_abspath(cli.project_path, url)
+        cli.logger.info("Using calendar: %s" % url)
+        project.schedule.from_url(url)
     project.client_session_from_env()
     project.set_action(cli.action)
     project.publish() # let's create redmine (sub) project

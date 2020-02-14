@@ -91,7 +91,34 @@ This ${Product} ${Epic} gets expanded into e.g. "Suse Linux Enterprise Server 15
 Where Beta 2 is the Epic name. This is specific only to the jira backend.
 ```
 
+#### Shedule integration
 
+We support schedule integration with all backends (currently Redmine and Jira)
+Integration is done via .ics file (either local or remote via url).
+
+This ics file needs to be referenced in the **schedule** section of project config.
+Task can be integrated with schedule by using variable **Calendar: Value**. 
+The value needs to match summary of the event in iCalendar file.
+
+**JIRA supports only due-date, start date can't be set via REST.**
+Redime supports both start and due dates.
+
+Example task with calendar integration
+
+````
+# Alpha
+Calendar: Alpha Phase
+
+This is the Alpha Phase.
+My Start/Due date will be set to icalendar entry matching vevent name "Alpha Phase".
+
+## Set Beta flag
+Calendar: 
+My Start/Due date will be set also to match Alpha phase, because I said so.
+
+## Send annoucement
+My Start/Due date won't be set because the "Calendar: Entry" is missing
+```
 ## Configuration
 
 If you just cloned the tool, the configuration files are located in the example directory.
@@ -180,6 +207,11 @@ $ cat md2workflow/example/my_project.conf
 [project]
 name = My cool product 1.0
 
+[schedule]
+# http/https url or path
+calendar_url = example.ics
+
+[schedule]
 [ownership]
 markdown_variable = Responsible
 build = lkocman
