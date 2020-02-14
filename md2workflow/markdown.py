@@ -96,6 +96,12 @@ class MarkDownObject(object):
         # Always point head at latest added node
         self._head = node
 
+    def print_markdown_tree(self):
+        if self.to_markdown():
+            print (self.to_markdown())
+
+        for node in self.nodes:
+            node.print_markdown_tree()
 
 class MarkDown(MarkDownObject):
     """
@@ -152,6 +158,10 @@ class MarkDown(MarkDownObject):
             self.logger.debug(
                 "Markdown: Ignoring line as it didn't match any known type.'%s'" % line)
 
+    def to_markdown(self):
+        # No text/visual interpretation at all. This would be essentially a project config
+        # So if something, then streaming basic project_config with reference to individual .md files
+        return
 
 class Paragraph(MarkDownObject):
     level = 10
@@ -202,6 +212,20 @@ class Paragraph(MarkDownObject):
     def __str__(self):
         return self.__text
 
+    def to_markdown(self):
+        # Ensure we have a newline after and before the print out
+        return "%s" % self.__text
+
+    def print_markdown_tree(self):
+        # Print an extra space before and after the paragraph
+        # This is the format we actually want in .md files
+        print ()
+        print (self.to_markdown())
+        print ()
+
+        for node in self.nodes:
+            node.print_markdown_tree()
+
 
 class Variable(MarkDownObject):
     """
@@ -249,6 +273,9 @@ class Variable(MarkDownObject):
 
     def __str__(self):
         return self.name
+
+    def to_markdown(self):
+        return "%s: %s" % (self.name, self.value)
 
 
 class Heading(MarkDownObject):
@@ -338,8 +365,17 @@ class Heading(MarkDownObject):
             raise ValueError("Unexpected value %s" % lvl)
 
     def to_markdown(self):
-        return "%s %s" % (self.level * "#", self)
+        return "%s %s" % (self.level * "#", self.__text)
 
+    def print_markdown_tree(self):
+        # Print an extra space after the Heading
+        # This is the format we actually want in .md files
+        print (self.to_markdown())
+        if self.level == 1: # print extra space for Epic level
+            print ()
+
+        for node in self.nodes:
+            node.print_markdown_tree()
 
 class Heading1(Heading):
     level = 1

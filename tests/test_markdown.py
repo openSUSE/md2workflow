@@ -55,6 +55,7 @@ def test_paragraph():
     para = markdown.Paragraph(raw)
     assert para.text == raw
 
+    assert para.to_markdown() == "line\nline2"
 
 def test_reads_md_single_heading():
     raw = "# test h1"
