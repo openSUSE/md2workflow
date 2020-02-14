@@ -7,6 +7,7 @@ import sys
 
 import md2workflow.workflow as workflow
 import md2workflow.markdown as markdown
+import md2workflow.schedule as schedule
 
 from md2workflow.cli import get_md_abspath
 
@@ -22,6 +23,14 @@ def handle_project(cli):
         summary=cli.project_conf["project"]["name"], environment=cli.environment, conf=cli.project_conf)
     project.logger = cli.logger
     project.conf = cli.project_conf
+    project.schedule = schedule.ProjectSchedule()
+    if "schedule" in project.conf:
+        # relpath has to be handled for non-url entries
+        url = project.conf["schedule"]["calendar_url"]
+        if not (url.startswith("https://") or url.startswith("http://")):
+            url = get_md_abspath(cli.project_path, url)
+        cli.logger.info("Using calendar: %s" % url)
+        project.schedule.from_url(url)
 
     for workflow_section in project.conf.sections():  # Workflow as in Milestone (e.g Beta) or Epic
         # these are not milestone sections

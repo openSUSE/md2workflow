@@ -3,6 +3,8 @@
 import configparser
 import logging
 
+import  md2workflow.schedule as schedule
+
 from md2workflow.markdown import *
 
 
@@ -49,6 +51,7 @@ class GenericTask(object):
         # This should be correctly replaced in add_task by logger of the parent
         self.logger = logging.getLogger("Placeholder")
         self._published = False
+        self._calendar_entry = None
 
     def publish(self, force_publish=False):
         if not self._published and not force_publish:
@@ -68,7 +71,20 @@ class GenericTask(object):
         self._variables[name] = value
         self.logger.debug("Adding variable %s=%s to (%s)" %
                           (name, value, self.variables))
+    @property
+    def calendar_entry(self):
+        """
+        Returns tuple of two datetime objects (dtstart, dtend) or None
+        """
+        return self._calendar_entry
 
+    @calendar_entry.setter
+    def calendar_entry(self, value):
+        """
+        Args
+            value - tuple of two datetime objects (dtstart, dtend)
+        """
+        self._calendar_entry = value
     @property
     def owner(self):
         try:
@@ -322,6 +338,28 @@ class GenericWorkflow(GenericNestedTask):
             result = TaskPlaceHolder(summary)
         return result
 
+    def _variable_is_calendar(self, variable):
+        """
+        Args
+            variable (Variable)
+
+        Returns true if variable is Calendar entry for schedule integration
+        """
+        if not isinstance(variable, Variable):
+            raise ValueError("Expected a Variable node, got %s" %
+                             type(variable))
+
+        self.logger.debug(
+            "Testing if variable '%s' is a calendar entry" % variable.name)
+
+        if u"%s" % variable.name.lower() == schedule.MARKDOWN_VARIABLE.lower():
+            self.logger.debug(
+                "variable %s was identified as a calendar entry" % variable)
+            return True
+
+        self.logger.debug("variable '%s' was not identified as a calendar entry")
+        return False
+
     def _variable_is_relation(self, variable):
         """
         Args
@@ -539,7 +577,13 @@ class GenericProject(GenericWorkflow):
                     target=t  # At this point the task is most likely not yet created, store name reference instead
                 )
             )
+        elif self._variable_is_calendar(variable):
+            schedule = task.parent_by_subclass(GenericProject).schedule
+            self.logger.debug("Looking up calendar entry for '%s'" % variable.value)
+            task.calendar_entry = schedule.start_end_by_name(variable.value)
+            if task.calendar_entry:
+                self.logger.debug("Found calendar entry %s: %s" % (variable.value, task.calendar_entry))
         else:
             self.logger.debug(
-                "Task variable %s was not identified as a relation" % variable)
+                "Task variable %s was not processed at parsing" % variable)
             task.add_variable(variable.name, variable.value)
