@@ -21,7 +21,6 @@ def str_to_bool(value):
 class RedmineSubTask(workflow.GenericTask):
     def __init__(self, summary, client_session=None, description="",
                     environment=None, conf=None):
-        print ("DESCR: %s" % description)
         super(RedmineSubTask, self).__init__(
             summary, description, environment, conf)
         self.client_session = client_session
@@ -70,7 +69,6 @@ class RedmineSubTask(workflow.GenericTask):
     @property
     def description(self):
         res = self._description.strip()
-        print ("DESCRIPTION '%s'" % res)
         res = res.replace("${Project}", self.conf["project"]["name"])
         res = res.replace("${Product}", self.conf["project"]["name"])
 
@@ -136,7 +134,6 @@ class RedmineTask(RedmineSubTask, workflow.GenericNestedTask):
         task.action = self.action # Make sure that tasks knows Update/Create
         task.parent_task = self
         task.logger = self.logger
-        print ("DESCR2: %s" % task.description)
         super(RedmineTask, self).add_task(task)
 
 
