@@ -21,19 +21,33 @@ def str_to_bool(value):
 class RedmineSubTask(workflow.GenericTask):
     def __init__(self, summary, client_session=None, description="",
                     environment=None, conf=None):
+        print ("DESCR: %s" % description)
         super(RedmineSubTask, self).__init__(
             summary, description, environment, conf)
         self.client_session = client_session
-        self._published = False
         self._redmine = None
-        self._updatable = None
+        self._published = False
         self.action = CliAction.CREATE # default
+        self._updatable = None
 
     def set_action(self, action):
         if action not in (CliAction.CREATE, CliAction.UPDATE):
             raise ValueError(
                 "%s: unsupported action %s" % (self.__class__.__name__, action))
         self.action = action
+
+    def _save_redmine(self):
+        try:
+            self._redmine.save()
+            self._published = True
+        except exceptions.ValidationError:
+            self.logger.error("Issue '%s' already exists" % self.summary)
+            raise
+        except exceptions.ForbiddenError:
+            self.logger.error("Unauthorized to create project %s. " \
+            "Is Redmine API enabled? Do you have role with permission to create project?" % self.summary)
+            raise
+
 
     def publish(self, force_publish=False):
         if self._published: # Idempotency
@@ -49,8 +63,30 @@ class RedmineSubTask(workflow.GenericTask):
         # sub-task -> task -> target_version -> project.id
         self._redmine.project_id = self.parent_task.parent_task.parent_task._redmine.id
 
-        self._redmine.save()
-        self._published = True
+        # parent's parent is target_version
+        self._redmine.fixed_version_id = self.parent_task.  parent_task._redmine.id
+        self._save_redmine()
+
+    @property
+    def description(self):
+        res = self._description.strip()
+        print ("DESCRIPTION '%s'" % res)
+        res = res.replace("${Project}", self.conf["project"]["name"])
+        res = res.replace("${Product}", self.conf["project"]["name"])
+
+        if self.parent_by_subclass(RedmineBasedWorkflow):
+            target_version = str(self.parent_by_subclass(
+                RedmineBasedWorkflow).summary)
+            res = res.replace("${Epic}", target_version)
+            res = res.replace("${Milestone}", target_version)
+
+        # bold and links should be fine
+        # TODO: support url refrences to the git repo
+        return res
+
+    @description.setter
+    def description(self, value):
+        self._description = value
 
 class RedmineTask(RedmineSubTask, workflow.GenericNestedTask):
     def publish(self, force_publish=False):
@@ -59,11 +95,14 @@ class RedmineTask(RedmineSubTask, workflow.GenericNestedTask):
         self._redmine = self.client_session.issue.new()
         self._redmine.subject = self.summary
         self._redmine.description = self.description
+
         # our parent would be a version, so let's go for parent of the version
         #self._redmine.fixed_version_id = self.parent_task._redmine.id
         #self._redmine.parent = self.parent_task.parent_task._redmine.id
         self._redmine.project_id = self.parent_task.parent_task._redmine.id
 
+        # parent is target_version
+        self._redmine.fixed_version_id = self.parent_task._redmine.id
         # Following save requires Issue states, Issue Workflow and Issue Tracker
         # to be set up manually. Unfortunatelly this can't be done over API
         # However we can inherit it from the parent project.
@@ -73,8 +112,7 @@ class RedmineTask(RedmineSubTask, workflow.GenericNestedTask):
 
         # XXX: I see that some issues are multiplied perhaps we have to check
         # Whether the issue was already published or not.
-        self._redmine.save()
-        self._published = True
+        self._save_redmine()
 
     @property
     def task_class(self):
@@ -98,8 +136,8 @@ class RedmineTask(RedmineSubTask, workflow.GenericNestedTask):
         task.action = self.action # Make sure that tasks knows Update/Create
         task.parent_task = self
         task.logger = self.logger
+        print ("DESCR2: %s" % task.description)
         super(RedmineTask, self).add_task(task)
-        task.publish() # there is nothing to wait for no pending task relations etc.
 
 
 class RedmineBasedWorkflow(RedmineTask, workflow.GenericWorkflow):
@@ -131,9 +169,14 @@ class RedmineBasedWorkflow(RedmineTask, workflow.GenericWorkflow):
             #self._redmine.due_date = datetime.date(2014, 1, 30) # TODO Issue #17
             self._redmine.description = self.description
             self._redmine.wiki_page_title = self.summary
-            self._redmine.save()
+            self._save_redmine()
             self.logger.debug("New Redmine version (workflow) create id=%s" % self._redmine.id)
         self._published = True
+
+        def publish_task_relation(self, relation):
+            self.logger.debug("redmine: relations are not supported.")
+            # TODO: write a task comment or a custom field?
+
 class RedmineBasedProject(RedmineBasedWorkflow, workflow.GenericProject):
     """
     Redmine project representation of our Workflow Project
@@ -188,7 +231,7 @@ class RedmineBasedProject(RedmineBasedWorkflow, workflow.GenericProject):
             self.logger.debug("Looking up Redmine parent project %s" % parent_id)
             try:
                 parent = self.client_session.project.get(parent_id)
-                self._redmine.parent = parent.id
+                self._redmine.parent_id = parent.id
                 self.logger.debug("Found Redmine parent project=%s id=%s" % (parent, parent.id))
             except exceptions.ResourceNotFoundError as e:
                 self.logger.error("Could not find Redmine parent project=%s" % parent_id)
@@ -198,14 +241,8 @@ class RedmineBasedProject(RedmineBasedWorkflow, workflow.GenericProject):
             self._redmine.homepage=self.conf.get("project", "homepage")
 
         # Publish
-        try:
-            self._redmine.save()
-        except exceptions.ForbiddenError:
-            self.logger.error("Unauthorized to create project %s. " \
-            "Is Redmine API enabled? Do you have role with permission to create project?" % self.summary)
-            raise
+        self._save_redmine()
 
-        self._published = True
     def client_session_from_env(self):
         """
         This will be inherited to every added child task and it's child task ...
@@ -281,5 +318,6 @@ def handle_project(cli):
             md.read(fd)
             project.from_markdown(md, override_workflow_name=workflow_section)
             project.relations_from_conf_section(project.conf, workflow_section)
+            project.publish_task_relation()
 
     return True  # for testing purposes
