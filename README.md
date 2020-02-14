@@ -103,6 +103,13 @@ The value needs to match summary of the event in iCalendar file.
 **JIRA supports only due-date, start date can't be set via REST.**
 Redime supports both start and due dates.
 
+```
+#### Task 
+Calendar: Summary of event from ics
+
+This task will have start/due dates.
+```
+
 ## Configuration
 
 If you just cloned the tool, the configuration files are located in the example directory.
@@ -229,7 +236,6 @@ name = My cool product 1.0
 # http/https url or path
 calendar_url = example.ics
 
-[schedule]
 [ownership]
 markdown_variable = Responsible
 build = lkocman
