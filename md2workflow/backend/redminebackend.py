@@ -15,6 +15,7 @@ from md2workflow.cli import get_md_abspath
 from md2workflow.cli import CliAction
 
 
+user_cache = {}
 
 def str_to_bool(value):
     return True if value.lower() == 'true' else False
@@ -40,17 +41,38 @@ class RedmineSubTask(workflow.GenericTask):
         try:
             self._redmine.save()
             self._published = True
+        # either issue exists or e.g. invalid user   which is e.g. missing role in a project
         except exceptions.ValidationError:
-            self.logger.error("Issue '%s' already exists" % self.summary)
             raise
         except exceptions.ForbiddenError:
             self.logger.error("Unauthorized to create project %s. " \
             "Is Redmine API enabled? Do you have role with permission to create project?" % self.summary)
             raise
 
+    @property
+    def owner(self):
+        ownr = super(RedmineSubTask, self).owner
+        if not ownr:
+            return None
+
+        self.logger.debug("Looking up redmine owner id for user %s" % ownr)
+
+        if ownr not in user_cache:
+            res = self.client_session.user.filter(name=ownr)
+            if not res:
+                self.logger.warning("User %s not found." % ownr)
+                return None
+
+            assert len(res) == 1, "Multiple users found for name %s" % ownr
+            user_cache[ownr] = int(res[0].id)
+
+        self.logger.debug("Identified id=%d for user %s." % (user_cache[ownr], ownr))
+        return user_cache[ownr]
+
     def publish(self, force_publish=False):
         if self._published: # Idempotency
             return
+
         self._redmine = self.client_session.issue.new()
         self._redmine.subject = self.summary
         self._redmine.description = self.description
@@ -64,6 +86,9 @@ class RedmineSubTask(workflow.GenericTask):
 
         # parent's parent is target_version
         self._redmine.fixed_version_id = self.parent_task.  parent_task._redmine.id
+
+        if self.owner:
+            self._redmine.assigned_to_id = self.owner
 
         if self.calendar_entry:
             self._redmine.start_date = self.calendar_entry[0]
@@ -115,6 +140,9 @@ class RedmineTask(RedmineSubTask, workflow.GenericNestedTask):
 
         # XXX: I see that some issues are multiplied perhaps we have to check
         # Whether the issue was already published or not.
+
+        if self.owner:
+            self._redmine.assigned_to_id = self.owner
 
         if self.calendar_entry:
             self._redmine.start_date = self.calendar_entry[0]
