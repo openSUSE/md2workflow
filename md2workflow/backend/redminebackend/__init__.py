@@ -43,11 +43,21 @@ class RedmineSubTask(workflow.GenericTask):
             self._published = True
         # either issue exists or e.g. invalid user   which is e.g. missing role in a project
         except exceptions.ValidationError:
+            self.logger.error("Failed to assign user %s" % self.owner)
             raise
         except exceptions.ForbiddenError:
             self.logger.error("Unauthorized to create project %s. " \
             "Is Redmine API enabled? Do you have role with permission to create project?" % self.summary)
             raise
+
+    @property
+    def summary(self):
+        return self._summary[:59] # 60 is the limit, let's store full string internally, so it can still be accessed
+
+    @summary.setter
+    def summary(self, text):
+        self._summary = text or ""  # Make sure there is not None
+
 
     @property
     def owner(self):
