@@ -20,7 +20,7 @@ import md2workflow.markdown as markdown
 # Task and Subtask for Alpha, Task and Subtask for Beta, Only one Task for RC
 
 def test_headings1():
-    content=StringIO("""#,Project,Tracker,Parent task,Status,Priority,Subject,Author,Assignee,Updated,Category,Target version,Start date,Due date,Estimated time,Spent time,% Done,Created,Closed,Related issues,Private,Description
+    content=StringIO(u"""#,Project,Tracker,Parent task,Status,Priority,Subject,Author,Assignee,Updated,Category,Target version,Start date,Due date,Estimated time,Spent time,% Done,Created,Closed,Related issues,Private,Description
 1,My Project,action,,Status,Priority,Test task 1,lkocman,lkocman,Updated,Category,Alpha,Start date,Due date,Estimated time,Spent time,% Done,Created,Closed,Related issues,Private,Task 1 Description
 2,My Project,action,Test task 1,Status,Priority,Test task 2,lkocman,lkocman,Updated,Category,Alpha,Start date,Due date,Estimated time,Spent time,% Done,Created,Closed,Related issues,Private,Task 2 Description
 3,My Project,action,,Status,Priority,Test task 3,lkocman,lkocman,Updated,Category,Beta,Start date,Due date,Estimated time,Spent time,% Done,Created,Closed,Related issues,Private,Task 3 Description
