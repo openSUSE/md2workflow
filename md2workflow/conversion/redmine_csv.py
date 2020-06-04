@@ -29,7 +29,7 @@ class RedmineFields(object):
     Private = 20
     Description = 21
 
-def process_row(row, markdown_parser, opts, logger):
+def process_row(row, markdown_parser, target_version, logger):
     """
     Nodes are in a tree structure
     H1 is essentially epic, H4 task, H5 subtask.
@@ -42,29 +42,28 @@ def process_row(row, markdown_parser, opts, logger):
 
     task_name = row[RedmineFields.Subject]
 
+    tv = "Unsorted" # This would otherwise make quite a mess in Markdown
     # Target Version is treated as a Heading1
     # Ensure that when we end the block the HEAD points to matching H1
     if row[RedmineFields.Target_version]:
-        target_version = row[RedmineFields.Target_version]
-    else:
-        target_version = "Unsorted" # This would otherwise make quite a mess in Markdown
+        tv = row[RedmineFields.Target_version]
 
-    logger.debug("Target version: %s" % target_version)
-    if opts.target_version and target_version not in opts.target_version:
-        logger.debug("Skipping target_version %s due to --target-version=%s" % (target_version, opts.target_version))
+    logger.debug("Target version: %s" % tv)
+    if target_version and tv not in target_version:
+        logger.debug("Skipping target_version %s due to --target-version=%s" % (tv, target_version))
         return
 
     for node in markdown_parser.nodes:
-        logger.debug("Looking for existing H1 with value %s. Found: %s" % (target_version, str(node)))
-        if str(node) == target_version:
+        logger.debug("Looking for existing H1 with value %s. Found: %s" % (tv, str(node)))
+        if str(node) == tv:
             head = node
-            logger.debug("Found match for target_version: %s" % (target_version))
+            logger.debug("Found match for target_version: %s" % (tv))
             break
 
-    if str(head) != target_version: # Is head on the matching H1?
-        logger.debug("Did not find existing Heading 1 with value %s" % target_version)
+    if str(head) != tv: # Is head on the matching H1?
+        logger.debug("Did not find existing Heading 1 with value %s" % tv)
         parent = head
-        head = markdown.Heading1(target_version) # Set Head to H1
+        head = markdown.Heading1(tv) # Set Head to H1
         logger.debug("Creating new H1 node: %s" % str(head))
         parent.add_node(head)
         logger.debug("Current HEAD: %s, nodes: %s" % (head, [str(n) for n in head.nodes]))
