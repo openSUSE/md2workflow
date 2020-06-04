@@ -28,17 +28,14 @@ def test_headings1():
 5,My Project,action,Parent task,Status,Priority,Test task 5,lkocman,lkocman,Updated,Category,RC,Start date,Due date,Estimated time,Spent time,% Done,Created,Closed,Related issues,Private,Task 5 Description""")
 
     markdown_parser = markdown.MarkDown()
-    parser = redmine_csv.get_optparse()
-    parser.add_option("--ignore", action="append") # pytest injected
-    opts, args = parser.parse_args()
-
+    target_version = [] # from opts
     csv_reader = csv.reader(content, dialect=csv.Dialect.doublequote)
     line_no=0
     for row in csv_reader:
         if line_no == 0:
             line_no += 1
             continue # skip initial heading
-        redmine_csv.process_row(row, markdown_parser, opts, logging)
+        redmine_csv.process_row(row, markdown_parser, target_version, logging)
 
     assert len(markdown_parser.nodes) == 3 # Alpha, Beta, RC
     assert str(markdown_parser.nodes[0]) == "Alpha"
