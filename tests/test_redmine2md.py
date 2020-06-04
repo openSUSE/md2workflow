@@ -28,7 +28,9 @@ def test_headings1():
 5,My Project,action,Parent task,Status,Priority,Test task 5,lkocman,lkocman,Updated,Category,RC,Start date,Due date,Estimated time,Spent time,% Done,Created,Closed,Related issues,Private,Task 5 Description""")
 
     markdown_parser = markdown.MarkDown()
-    opts, args = redmine_csv.get_optparse().parse_args()
+    parser = redmine_csv.get_optparse()
+    parser.add_option("--ignore", action="append") # pytest injected
+    opts, args = parser.parse_args()
 
     csv_reader = csv.reader(content, dialect=csv.Dialect.doublequote)
     line_no=0
