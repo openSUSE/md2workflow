@@ -66,7 +66,6 @@ class RedmineSubTask(workflow.GenericTask):
             return None
 
         self.logger.debug("Looking up redmine owner id for user %s" % ownr)
-
         if ownr not in user_cache:
             res = self.client_session.user.filter(name=ownr)
             if not res:
@@ -75,6 +74,7 @@ class RedmineSubTask(workflow.GenericTask):
 
             assert len(res) == 1, "Multiple users found for name %s" % ownr
             user_cache[ownr] = int(res[0].id)
+
 
         self.logger.debug("Identified id=%d for user %s." % (user_cache[ownr], ownr))
         return user_cache[ownr]
@@ -304,7 +304,16 @@ class RedmineBasedProject(RedmineBasedWorkflow, workflow.GenericProject):
         server = self.environment["redmine"]["server"]
 
         # use value passed by user if mapping is not found
-        if self.environment["redmine"]["auth"] == "basic":
+        if self.environment["redmine"]["auth"] == "apikey":
+            key = None
+            if "apikey" in self.environment["redmine"]:
+                key = self.environment["redmine"]["apikey"]
+            else:
+                key = getpass.getpass("Please enter apikey")
+            self.logger.debug("Creating redmine session with apikey for %s" % (server))
+            self.client_session = Redmine(server, key=key)
+
+        elif self.environment["redmine"]["auth"] == "basic":
             user = None
             if "user" in self.environment["redmine"]:
                 user = self.environment["redmine"]["user"]
@@ -316,14 +325,16 @@ class RedmineBasedProject(RedmineBasedWorkflow, workflow.GenericProject):
             password = None
             if "password" in self.environment["redmine"]:
                 password = self.environment["redmine"]["password"]
+            elif "apikey" in self.environment["redmine"]:
+                pass
             else:
                 password = getpass.getpass(
                     "Password of Redmine user %s for %s: " % (user, server))
             self.logger.debug("Creating redmine session %s@%s" % (user, server))
             self.client_session = Redmine(
-                                            server,
-                                            username=user,
-                                            password=password)
+                                        server,
+                                        username=user,
+                                        password=password)
         else:
             raise NotImplementedError("Authentication type '%s' is not implemented." % \
                                         self.environment["redmine"]["auth"])
