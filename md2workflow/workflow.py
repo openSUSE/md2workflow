@@ -546,6 +546,12 @@ class GenericProject(GenericWorkflow):
             task (GenericTask) - a task which will shall contain the variable
         """
         self.logger.debug("Processing task variable %s" % variable)
+
+        # substitute product in variable value (e.g. for calendar entries)
+        # at this point we don't really know the Epic relation so just product/project
+        variable.value = variable.value.replace("${Project}", self.conf["project"]["name"])
+        variable.value = variable.value.replace("${Product}", self.conf["project"]["name"])
+
         # Is it a relation?
         if self._variable_is_relation(variable):
             # Links in between tasks are defined in Workflow level object
