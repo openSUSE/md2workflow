@@ -6,7 +6,8 @@ import md2workflow.validation as validation
 allowed_keys = [
                     # lkocman's local redmine container setup, default port is 3000
                     "server",# http://redmine-example:3000
-                    "auth", # basic
+                    "auth", # basic / apikey
+                    "apikey", # key used for apikey authentication not basic user/password
                     # default user password in the redmine container was admin/admin (min. req for pass is 8 char)
                     "user", # admin
                     "password", # admin
@@ -17,8 +18,6 @@ allowed_keys = [
 required_keys = [
                     "server",
                     "auth",
-                    "user",
-                    "password",
                     "parent",
                     "is_project_public",
                 ]
