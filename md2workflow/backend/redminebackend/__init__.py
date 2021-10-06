@@ -294,7 +294,6 @@ class RedmineBasedProject(RedmineBasedWorkflow, workflow.GenericProject):
 
         # Publish
         self._save_redmine()
-
     def client_session_from_env(self):
         """
         This will be inherited to every added child task and it's child task ...
@@ -323,18 +322,26 @@ class RedmineBasedProject(RedmineBasedWorkflow, workflow.GenericProject):
                 except NameError:
                     user = input("Redmine user for %s: " % server)
             password = None
-            if "password" in self.environment["redmine"]:
-                password = self.environment["redmine"]["password"]
-            elif "apikey" in self.environment["redmine"]:
-                pass
+            apikey = None
+            if "apikey" in self.environment["redmine"]:
+                apikey = self.environment["redmine"]["apikey"]
             else:
-                password = getpass.getpass(
-                    "Password of Redmine user %s for %s: " % (user, server))
+                if "password" in self.environment["redmine"]:
+                    password = self.environment["redmine"]["password"]
+                else:
+                    password = getpass.getpass(
+                        "Password of Redmine user %s for %s: " % (user, server))
             self.logger.debug("Creating redmine session %s@%s" % (user, server))
-            self.client_session = Redmine(
-                                        server,
-                                        username=user,
-                                        password=password)
+            if apikey:
+                self.client_session = Redmine(
+                                            server,
+                                            username=user,
+                                            key=apikey)
+            else:
+                self.client_session = Redmine(
+                                            server,
+                                            username=user,
+                                            password=password)
         else:
             raise NotImplementedError("Authentication type '%s' is not implemented." % \
                                         self.environment["redmine"]["auth"])
