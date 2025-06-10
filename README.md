@@ -1,6 +1,6 @@
 # md2workflow
 
-Markdown To Workflow. A tool which can convert typically "VCS managed" mardown checklist into e.g. a linked structure of Jira Epics.
+A Python Library to convert typically "VCS managed" structured markdown into complex Jira or Redmine epics / issues.
 Tool can not only create checklists, but also update them!
 
 ## Getting the tool
